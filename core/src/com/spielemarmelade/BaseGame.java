@@ -29,7 +29,7 @@ public class BaseGame extends ApplicationAdapter {
 		level = new Level(new LevelBox[]{new LevelBox(1300, 180, 0, 0),
 				new LevelBox(6000, 84, -1000, 0),
 				new LevelBox(300, 3000, -300, 0),
-				new LevelBox(300, 3000, 3800, 0),
+				new LevelBox(300, 1370, 3737, 0),
 
 		});
 		batch = new SpriteBatch();
