@@ -9,10 +9,17 @@ import java.util.Arrays;
 
 public class Level {
     ArrayList<LevelBox> boxes = new ArrayList<>();
-    Texture texture = new Texture(Gdx.files.internal("level.png"));
-    Sprite sprite = new Sprite(texture);
+    final Texture texture;
+    final Sprite sprite;
 
-    public Level(LevelBox[] boxes){
+    public Level(String relativeAssetPath){
+
+        this.texture = new Texture(Gdx.files.internal(relativeAssetPath));
+        this.sprite = new Sprite(texture);
+    }
+
+    void addLevelboxes(LevelBox[] boxes) {
+
         this.boxes.addAll(Arrays.asList(boxes));
     }
 }

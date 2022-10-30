@@ -2,25 +2,21 @@ package com.spielemarmelade;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
-import java.util.*;
-import java.util.stream.Stream;
+import java.util.Arrays;
 
 public class Player {
 
+    static int JUMP_FACTOR = 100;
     Animation<TextureRegion> runningAnimation;
-    Texture texture;
-    Texture runningTexture;
-    Sprite runningSprite;
-    Sprite sprite;
+    Sprite idle;
+    Sprite jumping;
     Rectangle hitbox = new Rectangle();
     Boolean playerRight = true;
     int spriteWidth = 300;
@@ -37,23 +33,32 @@ public class Player {
     public Player() {
         hitbox.x = 500;
         hitbox.y = 500;
-        hitbox.width = spriteWidth*0.5f;
-        hitbox.height = spriteHeight*0.5f;
+        hitbox.width = spriteWidth*0.4f;
+        hitbox.height = spriteHeight*0.65f;
         hitboxNextTick.width = hitbox.width;
         hitboxNextTick.height = hitbox.height;
 
-        texture = new Texture(Gdx.files.internal("player.png"));
-        sprite = new Sprite(texture);
+        idle = new Sprite(new Texture(Gdx.files.internal("player/idle.png")));
+        jumping = new Sprite(new Texture(Gdx.files.internal("player/jumping.png")));
 
-        runningTexture = new Texture(Gdx.files.internal("spritesheet_running.png"));
+        Texture runningTexture = new Texture(Gdx.files.internal("player/spritesheet_running.png"));
         runningFrames = TextureRegion.split(runningTexture, runningTexture.getWidth()/3, runningTexture.getHeight());
         runFrames = new TextureRegion[3];
 
         for(int x = 0; x < 3; x++)
             runFrames[x] = runningFrames[0][x];
 
-        runningSprite = new Sprite(runningTexture);
-        runningAnimation = new Animation<TextureRegion>(0.07f, runFrames);
+        runningAnimation = new Animation<>(0.07f, runFrames);
+    }
+
+
+    public TextureRegion deriveSpriteFromCurrentState(float time) {
+
+        if (isInAir) return this.jumping;
+
+        if (this.velocity.x != 0) return this.runningAnimation.getKeyFrame(time, true);
+
+        return this.idle;
     }
 
 
@@ -82,7 +87,6 @@ public class Player {
 
         if (hitboxNextTick.overlaps(box.hitbox)) {
 
-            hitboxNextTick.x = hitbox.x;
             velocity.x = 0;
         }
 
@@ -93,7 +97,6 @@ public class Player {
 
             if(velocity.y < 0)
                 isInAir = false;
-            hitboxNextTick.y = hitbox.y;
             velocity.y = 0;
         }
 
@@ -130,7 +133,7 @@ public class Player {
 
             //flip the sprite if its facing the wrong way
             if (!playerRight) {
-                sprite.flip(true, false);
+                this.updateSprites();
                 playerRight = true;
             }
             velocity.x += movementSpeed * Gdx.graphics.getDeltaTime();
@@ -144,7 +147,7 @@ public class Player {
 
             //flip the sprite if its facing the wrong way
             if (playerRight) {
-                sprite.flip(true, false);
+                this.updateSprites();
                 playerRight = false;
             }
 
@@ -170,7 +173,7 @@ public class Player {
     public void yMovement() {
         if (Gdx.input.isKeyPressed(Input.Keys.W)) {
             if (!isInAir) {
-                velocity.y += 70 * movementSpeed * Gdx.graphics.getDeltaTime();
+                velocity.y += JUMP_FACTOR * movementSpeed * Gdx.graphics.getDeltaTime();
                 isInAir = true;
             }
         }
@@ -181,6 +184,14 @@ public class Player {
 
 
     public void dispose() {
-        texture.dispose();
+        // pass (player character wont be disposed of until death of process, so no need for cleaning up)
+    }
+
+
+    private void updateSprites() {
+
+        idle.flip(true, false);
+        jumping.flip(true, false);
+        Arrays.stream(runningAnimation.getKeyFrames()).forEach(r -> r.flip(true, false));
     }
 }

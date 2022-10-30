@@ -8,9 +8,14 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.ScreenUtils;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class BaseGame extends ApplicationAdapter {
 	SpriteBatch batch;
@@ -18,7 +23,13 @@ public class BaseGame extends ApplicationAdapter {
 	OrthographicCamera camera;
 	ShapeRenderer shapeRenderer;
 
+	int sceneTransition = 0;
+	static final int CAMERA_SLIDE_SPEED = 12;
+	static final int CAMERA_TOP_BOUND = (int)(2160/1.7);
+	static final int CAMERA_BOTTOM_BOUND = 900;
+
 	Level level;
+	List<Level> backgroundLevel;
 
 	float time = 0;
 
@@ -28,7 +39,8 @@ public class BaseGame extends ApplicationAdapter {
 	public void create () {
 		shapeRenderer = new ShapeRenderer();
 		player = new Player();
-		level = new Level(new LevelBox[]{new LevelBox(1300, 180, 0, 0),
+		this.level = new Level("level/foreground_front.png");
+		level.addLevelboxes(new LevelBox[]{new LevelBox(1300, 180, 0, 0),
 				new LevelBox(6000, 84, -1000, 0),
 				new LevelBox(300, 3000, -300, 0),
 				new LevelBox(300, 1370, 3737, 0),
@@ -48,6 +60,12 @@ public class BaseGame extends ApplicationAdapter {
 				new LevelBox(180, 73, 3228, 1488-73),
 				new LevelBox(57, 95, 3680, 1100-95),
 		});
+		Level levelSky = new Level("level/sky.png");
+		Level levelHorizon = new Level("level/horizon.png");
+		Level levelBackForegroundLayer = new Level("level/foreground_back.png");
+		this.backgroundLevel = new ArrayList<>();
+		this.backgroundLevel.addAll(Arrays.asList(levelSky, levelHorizon, levelBackForegroundLayer));
+
 		batch = new SpriteBatch();
 
 		camera = new OrthographicCamera();
@@ -69,10 +87,24 @@ public class BaseGame extends ApplicationAdapter {
 		batch.setProjectionMatrix(camera.combined);
 		shapeRenderer.setProjectionMatrix(camera.combined);
 		batch.begin();
-		batch.draw(level.sprite,0,0,level.sprite.getWidth(), level.sprite.getHeight());
 		//batch.draw(player.runningSprite, player.hitbox.x + player.spriteOffsetX, player.hitbox.y + player.spriteOffsetY, player.spriteWidth, player.spriteHeight);
 		System.out.println(time);
-		batch.draw(player.runningAnimation.getKeyFrame(time, true), player.hitbox.x, player.hitbox.y, player.spriteWidth, player.spriteHeight);
+
+		// render level background
+		for (Level l : this.backgroundLevel) {
+			batch.draw(l.sprite, 0, 0, level.sprite.getWidth(), level.sprite.getHeight());
+		}
+
+		// render character
+		TextureRegion currentPlayerFrame = player.deriveSpriteFromCurrentState(time);
+		batch.draw(currentPlayerFrame,
+				player.hitbox.x-90,
+				player.hitbox.y-25,
+				player.spriteWidth,
+				player.spriteHeight);
+
+		// render level foreground
+		batch.draw(level.sprite,0,0,level.sprite.getWidth(), level.sprite.getHeight());
 		batch.end();
 
 		shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
@@ -90,6 +122,28 @@ public class BaseGame extends ApplicationAdapter {
 		if(camLeftBorder < -1534)
 			if(camRightBorder > 1537)
 				camera.position.x = player.hitbox.x;
+
+
+		if (sceneTransition > 0) {
+			if (camera.position.y < CAMERA_TOP_BOUND) {
+				camera.position.y = (camera.position.y + CAMERA_SLIDE_SPEED < CAMERA_TOP_BOUND)?
+						camera.position.y + CAMERA_SLIDE_SPEED : CAMERA_TOP_BOUND;
+			} else {
+				sceneTransition = 0;
+			}
+		} else if (sceneTransition < 0) {
+			if (camera.position.y > CAMERA_BOTTOM_BOUND) {
+				camera.position.y = (camera.position.y - CAMERA_SLIDE_SPEED > CAMERA_BOTTOM_BOUND)?
+						camera.position.y - CAMERA_SLIDE_SPEED : CAMERA_BOTTOM_BOUND;
+			} else {
+				sceneTransition = 0;
+			}
+		}
+		else if (player.hitbox.y > 1080 && camera.position.y < CAMERA_TOP_BOUND) {
+			sceneTransition = 1;
+		} else if (player.hitbox.y < 1080 && camera.position.y > CAMERA_BOTTOM_BOUND) {
+			sceneTransition = -1;
+		}
 
 		camera.update();
 	}
