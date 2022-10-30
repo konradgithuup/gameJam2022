@@ -4,7 +4,10 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
@@ -13,8 +16,11 @@ import java.util.stream.Stream;
 
 public class Player {
 
-    Texture texture = new Texture(Gdx.files.internal("player.png"));
-    Sprite sprite = new Sprite(texture);
+    Animation<TextureRegion> runningAnimation;
+    Texture texture;
+    Texture runningTexture;
+    Sprite runningSprite;
+    Sprite sprite;
     Rectangle hitbox = new Rectangle();
     Boolean playerRight = true;
     int spriteWidth = 300;
@@ -25,6 +31,8 @@ public class Player {
     int movementSpeed = 18;
     Vector2 velocity = new Vector2(0, 0);
     Rectangle hitboxNextTick = new Rectangle();
+    TextureRegion[][] runningFrames;
+    TextureRegion[] runFrames;
 
     public Player() {
         hitbox.x = 500;
@@ -33,6 +41,19 @@ public class Player {
         hitbox.height = spriteHeight*0.5f;
         hitboxNextTick.width = hitbox.width;
         hitboxNextTick.height = hitbox.height;
+
+        texture = new Texture(Gdx.files.internal("player.png"));
+        sprite = new Sprite(texture);
+
+        runningTexture = new Texture(Gdx.files.internal("spritesheet_running.png"));
+        runningFrames = TextureRegion.split(runningTexture, runningTexture.getWidth()/3, runningTexture.getHeight());
+        runFrames = new TextureRegion[3];
+
+        for(int x = 0; x < 3; x++)
+            runFrames[x] = runningFrames[0][x];
+
+        runningSprite = new Sprite(runningTexture);
+        runningAnimation = new Animation<TextureRegion>(0.07f, runFrames);
     }
 
 

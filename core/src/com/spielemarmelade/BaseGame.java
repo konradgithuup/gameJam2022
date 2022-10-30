@@ -20,6 +20,8 @@ public class BaseGame extends ApplicationAdapter {
 
 	Level level;
 
+	float time = 0;
+
 
 	
 	@Override
@@ -45,6 +47,7 @@ public class BaseGame extends ApplicationAdapter {
 	@Override
 	public void render () {
 		ScreenUtils.clear(0,0.02f,0.07f, 1);
+		time += Gdx.graphics.getDeltaTime();
 
 		player.updateInput(level);
 		updateCamera();
@@ -53,15 +56,17 @@ public class BaseGame extends ApplicationAdapter {
 		shapeRenderer.setProjectionMatrix(camera.combined);
 		batch.begin();
 		batch.draw(level.sprite,0,0,level.sprite.getWidth(), level.sprite.getHeight());
-		batch.draw(player.sprite, player.hitbox.x + player.spriteOffsetX, player.hitbox.y + player.spriteOffsetY, player.spriteWidth, player.spriteHeight);
+		//batch.draw(player.runningSprite, player.hitbox.x + player.spriteOffsetX, player.hitbox.y + player.spriteOffsetY, player.spriteWidth, player.spriteHeight);
+		System.out.println(time);
+		batch.draw(player.runningAnimation.getKeyFrame(time, true), player.hitbox.x, player.hitbox.y, player.spriteWidth, player.spriteHeight);
 		batch.end();
 
 		shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
 		shapeRenderer.setColor(Color.RED);
+		shapeRenderer.rect(player.hitbox.x, player.hitbox.y, player.hitbox.width, player.hitbox.height);
 		for(LevelBox box : level.boxes)
 			shapeRenderer.rect(box.hitbox.x, box.hitbox.y, box.hitbox.width, box.hitbox.height);
 		shapeRenderer.end();
-
 	}
 
 	private void updateCamera() {
