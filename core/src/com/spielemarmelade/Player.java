@@ -7,6 +7,9 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
+import java.util.*;
+import java.util.stream.Stream;
+
 public class Player {
 
     Texture texture = new Texture(Gdx.files.internal("player.png"));
@@ -19,14 +22,16 @@ public class Player {
     int spriteOffsetY = -15;
     Boolean isInAir = false;
     int movementSpeed = 18;
-
     Vector2 velocity = new Vector2(0, 0);
+    Rectangle hitboxNextTick = new Rectangle();
 
     public Player() {
         hitbox.x = 500;
         hitbox.y = 500;
         hitbox.width = 110;
         hitbox.height = 160;
+        hitboxNextTick.width = hitbox.width;
+        hitboxNextTick.height = hitbox.height;
     }
 
 
@@ -36,34 +41,44 @@ public class Player {
 
         yMovement();
 
-        /*
-        Rectangle futureHitbox = new Rectangle();
-        futureHitbox.x = hitbox.x + velocity.x;
-        futureHitbox.y = hitbox.y + velocity.y;
-        if (futureHitbox.y < 0) {
-            futureHitbox.y = 0;
-        }
+        hitboxNextTick.x = hitbox.x + velocity.x;
+        hitboxNextTick.y = hitbox.y;
 
-        if(box.hitbox.overlaps(futureHitbox)){
-            System.out.println("OVERLAP");
+        if (hitboxNextTick.overlaps(box.hitbox)) {
+            System.out.println("overlap");
+
+            hitboxNextTick.x = hitbox.x;
             velocity.x = 0;
-            velocity.y = 0;
         }
-         */
 
-        hitbox.x += velocity.x;
-        hitbox.y += velocity.y;
-        if (hitbox.y <= 0) {
-            hitbox.y = 0;
+        hitboxNextTick.x = hitbox.x;
+        hitboxNextTick.y = hitbox.y  + velocity.y;
+
+        if (hitboxNextTick.overlaps(box.hitbox)) {
+            System.out.println("overlap");
+
+            hitboxNextTick.y = hitbox.y;
             velocity.y = 0;
             isInAir = false;
         }
+        
+        hitboxNextTick.x = hitbox.x + velocity.x;
+        hitboxNextTick.y = hitbox.y + velocity.y;
+
+        if (hitboxNextTick.y <= 0) {
+            hitboxNextTick.y = 0;
+            velocity.y = 0;
+            isInAir = false;
+        }
+
+        hitbox.x = hitboxNextTick.x;
+        hitbox.y = hitboxNextTick.y;
     }
 
-    public void xMovement(){
+    public void xMovement() {
         //if both buttons are pressed and we are on the ground => STOP
-        if (Gdx.input.isKeyPressed(Input.Keys.D) && Gdx.input.isKeyPressed(Input.Keys.A)){
-            if(!isInAir){
+        if (Gdx.input.isKeyPressed(Input.Keys.D) && Gdx.input.isKeyPressed(Input.Keys.A)) {
+            if (!isInAir) {
                 velocity.x = 0;
                 return;
             }
@@ -92,7 +107,7 @@ public class Player {
             }
 
             //flip the sprite if its facing the wrong way
-            if (playerRight){
+            if (playerRight) {
                 sprite.flip(true, false);
                 playerRight = false;
             }
@@ -116,7 +131,7 @@ public class Player {
         }
     }
 
-    public void yMovement(){
+    public void yMovement() {
         if (Gdx.input.isKeyPressed(Input.Keys.W)) {
             if (!isInAir) {
                 velocity.y += 70 * movementSpeed * Gdx.graphics.getDeltaTime();

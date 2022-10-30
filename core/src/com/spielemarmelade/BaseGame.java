@@ -24,7 +24,7 @@ public class BaseGame extends ApplicationAdapter {
 	
 	@Override
 	public void create () {
-		box = new LevelBox(500, 300, 0, 0);
+		box = new LevelBox(400, 100, 0, 0);
 		shapeRenderer = new ShapeRenderer();
 		player = new Player();
 		batch = new SpriteBatch();
@@ -39,7 +39,10 @@ public class BaseGame extends ApplicationAdapter {
 	@Override
 	public void render () {
 		ScreenUtils.clear(0,0.02f,0.07f, 1);
+
+		player.updateInput(box);
 		camera.update();
+
 		batch.setProjectionMatrix(camera.combined);
 		shapeRenderer.setProjectionMatrix(camera.combined);
 		batch.begin();
@@ -47,13 +50,11 @@ public class BaseGame extends ApplicationAdapter {
 		batch.end();
 
 		shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-		shapeRenderer.setColor(Color.RED);
-		shapeRenderer.rect(player.hitbox.x, player.hitbox.y, player.hitbox.width, player.hitbox.height);
+		shapeRenderer.setColor(Color.GREEN);
+		shapeRenderer.rect(player.hitboxNextTick.x, player.hitboxNextTick.y, player.hitboxNextTick.width, player.hitboxNextTick.height);
 		shapeRenderer.rect(box.hitbox.x, box.hitbox.y, box.hitbox.width, box.hitbox.height);
 		shapeRenderer.end();
 
-
-		player.updateInput(box);
 	}
 	
 	@Override
