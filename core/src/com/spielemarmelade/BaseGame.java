@@ -3,22 +3,29 @@ package com.spielemarmelade;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.ScreenUtils;
 
 public class BaseGame extends ApplicationAdapter {
 	SpriteBatch batch;
 	Player player;
+	LevelBox box;
 	OrthographicCamera camera;
+	ShapeRenderer shapeRenderer;
+
 
 
 	
 	@Override
 	public void create () {
+		box = new LevelBox(500, 300, 0, 0);
+		shapeRenderer = new ShapeRenderer();
 		player = new Player();
 		batch = new SpriteBatch();
 
@@ -34,11 +41,19 @@ public class BaseGame extends ApplicationAdapter {
 		ScreenUtils.clear(0,0.02f,0.07f, 1);
 		camera.update();
 		batch.setProjectionMatrix(camera.combined);
+		shapeRenderer.setProjectionMatrix(camera.combined);
 		batch.begin();
-		batch.draw(player.sprite, player.hitbox.x, player.hitbox.y, player.hitbox.width, player.hitbox.height);
+		batch.draw(player.sprite, player.hitbox.x + player.spriteOffsetX, player.hitbox.y + player.spriteOffsetY, player.spriteWidth, player.spriteHeight);
 		batch.end();
 
-		player.updateInput();
+		shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+		shapeRenderer.setColor(Color.RED);
+		shapeRenderer.rect(player.hitbox.x, player.hitbox.y, player.hitbox.width, player.hitbox.height);
+		shapeRenderer.rect(box.hitbox.x, box.hitbox.y, box.hitbox.width, box.hitbox.height);
+		shapeRenderer.end();
+
+
+		player.updateInput(box);
 	}
 	
 	@Override
