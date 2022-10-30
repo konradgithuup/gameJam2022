@@ -2,6 +2,7 @@ package com.spielemarmelade;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Rectangle;
@@ -16,8 +17,8 @@ public class Player {
     Sprite sprite = new Sprite(texture);
     Rectangle hitbox = new Rectangle();
     Boolean playerRight = true;
-    int spriteWidth = 200;
-    int spriteHeight = 200;
+    int spriteWidth = 300;
+    int spriteHeight = 300;
     int spriteOffsetX = -40;
     int spriteOffsetY = -15;
     Boolean isInAir = false;
@@ -28,24 +29,37 @@ public class Player {
     public Player() {
         hitbox.x = 500;
         hitbox.y = 500;
-        hitbox.width = 110;
-        hitbox.height = 160;
+        hitbox.width = spriteWidth*0.5f;
+        hitbox.height = spriteHeight*0.5f;
         hitboxNextTick.width = hitbox.width;
         hitboxNextTick.height = hitbox.height;
     }
 
 
-    public void updateInput(LevelBox box) {
+    public void updateInput(Level level) {
 
         xMovement();
 
         yMovement();
 
+        for(LevelBox box : level.boxes)
+            collision(box);
+
+        hitboxNextTick.x = hitbox.x + velocity.x;
+        hitboxNextTick.y = hitbox.y + velocity.y;
+
+        hitbox.x = hitboxNextTick.x;
+        hitbox.y = hitboxNextTick.y;
+    }
+
+
+
+    private void collision(LevelBox box) {
+
         hitboxNextTick.x = hitbox.x + velocity.x;
         hitboxNextTick.y = hitbox.y;
 
         if (hitboxNextTick.overlaps(box.hitbox)) {
-            System.out.println("overlap");
 
             hitboxNextTick.x = hitbox.x;
             velocity.x = 0;
@@ -55,24 +69,25 @@ public class Player {
         hitboxNextTick.y = hitbox.y  + velocity.y;
 
         if (hitboxNextTick.overlaps(box.hitbox)) {
-            System.out.println("overlap");
 
+            if(velocity.y < 0)
+                isInAir = false;
             hitboxNextTick.y = hitbox.y;
             velocity.y = 0;
-            isInAir = false;
         }
-        
+
         hitboxNextTick.x = hitbox.x + velocity.x;
-        hitboxNextTick.y = hitbox.y + velocity.y;
+        hitboxNextTick.y = hitbox.y  + velocity.y;
 
-        if (hitboxNextTick.y <= 0) {
-            hitboxNextTick.y = 0;
+        if (hitboxNextTick.overlaps(box.hitbox)) {
+
+            if(velocity.y < 0)
+                isInAir = false;
+            hitboxNextTick.x = hitbox.x;
+            hitboxNextTick.y = hitbox.y;
+            velocity.x = 0;
             velocity.y = 0;
-            isInAir = false;
         }
-
-        hitbox.x = hitboxNextTick.x;
-        hitbox.y = hitboxNextTick.y;
     }
 
     public void xMovement() {
