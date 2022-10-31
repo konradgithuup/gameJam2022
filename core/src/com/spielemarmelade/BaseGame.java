@@ -21,8 +21,7 @@ public class BaseGame extends ApplicationAdapter {
 	static float cameraDeltaY = 0;
 	ShapeRenderer shapeRenderer;
 
-	Eye eye;
-
+	EnemyManager manager;
 	int sceneTransition = 0;
 	static final int CAMERA_SLIDE_SPEED = 12;
 	static final int CAMERA_TOP_BOUND = (int)(2160/1.7);
@@ -39,7 +38,7 @@ public class BaseGame extends ApplicationAdapter {
 	public void create () {
 		shapeRenderer = new ShapeRenderer();
 		player = new Player();
-		eye = new Eye(player);
+		manager = new EnemyManager(player);
 		this.level = new Level("level/foreground_front.png", 0);
 		level.addLevelboxes(new LevelBox[]{new LevelBox(1300, 180, 0, 0),
 				new LevelBox(6000, 84, -1000, 0),
@@ -84,6 +83,7 @@ public class BaseGame extends ApplicationAdapter {
 		time += Gdx.graphics.getDeltaTime();
 
 		player.updateInput(level);
+		manager.update(time, cameraDeltaX, cameraDeltaY);
 		updateEnemies();
 		updateCamera();
 		Interface.updateHp(player.health);
@@ -133,7 +133,7 @@ public class BaseGame extends ApplicationAdapter {
 		shapeRenderer.setColor(Color.RED);
 		shapeRenderer.rect(player.hitbox.x, player.hitbox.y, player.hitbox.width, player.hitbox.height);
 		shapeRenderer.rect(player.attackHitbox.x, player.attackHitbox.y, player.attackHitbox.width, player.attackHitbox.height);
-		shapeRenderer.rect(eye.hitbox.x, eye.hitbox.y, eye.hitbox.width, eye.hitbox.height);
+		shapeRenderer.rect(manager.rect.x, manager.rect.y, manager.rect.width, manager.rect.height);
 
 		for(LevelBox box : level.boxes)
 			shapeRenderer.rect(box.hitbox.x, box.hitbox.y, box.hitbox.width, box.hitbox.height);
@@ -194,21 +194,26 @@ public class BaseGame extends ApplicationAdapter {
 
 	private void updateEnemies() {
 
-		eye.update(level);
+		for (Eye eye : manager.getEyes()) {
+			if (eye.disabled) continue;
+			eye.update(level);
+		}
 	}
 
 	private void renderEnemies() {
 
-		if (eye.disabled) return;
+		for (Eye eye : manager.getEyes()) {
 
-		batch.draw(eye.deriveSpriteFromCurrentState(time),
-				eye.hitbox.x, eye.hitbox.y,
-				eye.spriteHeight/2, eye.spriteHeight/2,
-				eye.spriteHeight,
-				eye.spriteHeight,
-				1,
-				1,
-				eye.lookDirection.angleDeg() + 135);
+			if (eye.disabled) continue;
+			batch.draw(eye.deriveSpriteFromCurrentState(time),
+					eye.hitbox.x, eye.hitbox.y,
+					eye.spriteHeight/2, eye.spriteHeight/2,
+					eye.spriteHeight,
+					eye.spriteHeight,
+					1,
+					1,
+					eye.lookDirection.angleDeg() + 135);
+		}
 	}
 
 	@Override

@@ -30,11 +30,11 @@ public class Eye implements Enemy {
     TextureRegion[][] flyingFrames;
     TextureRegion[] flyFrames;
 
-    public Eye(Player target) {
+    public Eye(Player target, float startX, float startY) {
 
         this.target = target;
-        hitbox.x = 500;
-        hitbox.y = 500;
+        hitbox.x = startX;
+        hitbox.y = startY;
         hitbox.width = spriteWidth * 0.75f;
         hitbox.height = spriteHeight * 0.75f;
 
