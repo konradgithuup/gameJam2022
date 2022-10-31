@@ -104,7 +104,6 @@ public class BaseGame extends ApplicationAdapter {
 		shapeRenderer.setProjectionMatrix(camera.combined);
 		batch.begin();
 		//batch.draw(player.runningSprite, player.hitbox.x + player.spriteOffsetX, player.hitbox.y + player.spriteOffsetY, player.spriteWidth, player.spriteHeight);
-		System.out.println(time);
 
 
 

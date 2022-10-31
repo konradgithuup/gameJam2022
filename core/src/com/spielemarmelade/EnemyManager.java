@@ -32,8 +32,6 @@ public class EnemyManager {
         spawnY += cameraDeltaY;
         spawnX += cameraDeltaX;
 
-        System.out.println("time " + (time-this.lastSpawn));
-
         this.eyes = this.eyes.stream().filter(e -> !e.disabled).collect(Collectors.toList());
 
         if (time - this.lastSpawn > 3 && eyes.size() < ENTITY_CAP) {
