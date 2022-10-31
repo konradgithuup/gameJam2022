@@ -57,6 +57,7 @@ public class BaseGame extends ApplicationAdapter {
 				new LevelBox(796, 85, 1902, 1460-85), // middle cloud
 				new LevelBox(240, 73, 3128, 1488-85), // right cloud
 				new LevelBox(57, 90, 3690, 1100-90), // right wall stone
+				new LevelBox(300, 3000, 3840, 0), // right wall
 		});
 		Level levelSky = new Level("level/sky.png", 0.8f);
 		Level levelHorizon = new Level("level/horizon.png", 0.25f);
