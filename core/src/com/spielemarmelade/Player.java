@@ -45,6 +45,7 @@ public class Player {
     TextureRegion[] dieFrames;
     float attackStartTime = -1;
 
+    float dieStartTime = 0;
     public Player() {
         hitbox.x = 500;
         hitbox.y = 500;
@@ -78,7 +79,7 @@ public class Player {
         for(int x = 0; x < 10; x++)
             dieFrames[x] = dieingFrames[0][x];
 
-        this.dieAnimation = new Animation<>(1f, dieFrames);
+        this.dieAnimation = new Animation<>(0.07f, dieFrames);
 
         Texture attackingSpriteSheet = new Texture((Gdx.files.internal("player/spritesheet_attacking.png")));
         TextureRegion[][] attackingFrames = TextureRegion.split(
@@ -105,7 +106,8 @@ public class Player {
     public TextureRegion deriveSpriteFromCurrentState(float time) {
 
         if (this.health == 0) {
-            return this.dieAnimation.getKeyFrame(time,false);
+            if (dieStartTime == 0) dieStartTime = time;
+            return this.dieAnimation.getKeyFrame(time - dieStartTime,false);
         }
 
         if (this.attackStartTime < 0 && this.blockingPlayerState == BlockingPlayerState.ATTACKING) {
