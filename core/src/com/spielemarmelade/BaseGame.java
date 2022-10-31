@@ -40,23 +40,23 @@ public class BaseGame extends ApplicationAdapter {
 		this.level = new Level("level/foreground_front.png", 0);
 		level.addLevelboxes(new LevelBox[]{new LevelBox(1300, 180, 0, 0),
 				new LevelBox(6000, 84, -1000, 0),
-				new LevelBox(300, 3000, -300, 0),
-				new LevelBox(300, 1370, 3737, 0),
-				new LevelBox(40, 2000, 45, 792-2000),
-				new LevelBox(37, 690, 27, 2160-690),
-				new LevelBox(200, 34, 1557, 384),
-				new LevelBox(835, 64, 1720, 574-64),
-				new LevelBox(750, 73, 2768, 853-73),
+				new LevelBox(300, 3000, -300, 0), // right border
+				new LevelBox(300, 1370, 3745, 0), // right wall
+				new LevelBox(40, 2000, 45, 792-2000), // lower tree trunk
+				new LevelBox(37, 690, 27, 2160-690), // upper tree trunk
+				new LevelBox(175, 34, 1557, 384), // wood step
+				new LevelBox(835, 64, 1720, 574-64), // mud white arc
+				new LevelBox(750, 73, 2768, 853-73), // mud red arc
 				new LevelBox(470, 60, 25, 2076-60), //Decke
 				new LevelBox(1060, 1670, 25, 2179), //Decke
-				new LevelBox(446, 85, 0, 870-85),
-				new LevelBox(940, 240, 0, 1110-240),
-				new LevelBox(1160, 140, 0, 1250-140),
-				new LevelBox(675, 230, 0, 1480-230),
-				new LevelBox(134, 70, 1528, 1200-70),
-				new LevelBox(796, 85, 1902, 1460-85),
-				new LevelBox(180, 73, 3228, 1488-73),
-				new LevelBox(57, 95, 3680, 1100-95),
+				new LevelBox(446, 85, 0, 870-85), // leafs
+				new LevelBox(940, 240, 0, 1110-240), // leafs
+				new LevelBox(1160, 140, 0, 1250-140), // leafs
+				new LevelBox(675, 230, 0, 1480-230), // leafs
+				new LevelBox(134, 70, 1528, 1200-70), // left cloud
+				new LevelBox(796, 85, 1902, 1460-85), // middle cloud
+				new LevelBox(240, 73, 3128, 1488-85), // right cloud
+				new LevelBox(57, 90, 3690, 1100-90), // right wall stone
 		});
 		Level levelSky = new Level("level/sky.png", 0.8f);
 		Level levelHorizon = new Level("level/horizon.png", 0.25f);
