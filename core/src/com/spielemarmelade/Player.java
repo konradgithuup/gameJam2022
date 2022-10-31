@@ -8,9 +8,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import org.w3c.dom.Text;
 
-import java.io.Serializable;
 import java.util.Arrays;
 
 enum BlockingPlayerState {
@@ -30,6 +28,7 @@ public class Player {
     Sprite idle;
     Sprite jumping;
     Rectangle hitbox = new Rectangle();
+    Rectangle attackHitbox = new Rectangle();
     Boolean playerRight = true;
     int spriteWidth = 300;
     int spriteHeight = 300;
@@ -46,6 +45,12 @@ public class Player {
         hitbox.y = 500;
         hitbox.width = spriteWidth*0.4f;
         hitbox.height = spriteHeight*0.65f;
+
+        attackHitbox.x = hitbox.x + hitbox.width;
+        attackHitbox.y = hitbox.y + hitbox.height/4;
+        attackHitbox.width = hitbox.width;
+        attackHitbox.height = hitbox.height;
+
         hitboxNextTick.width = hitbox.width;
         hitboxNextTick.height = hitbox.height;
 
@@ -157,6 +162,14 @@ public class Player {
             velocity.x = 0;
             velocity.y = 0;
         }
+
+        if (playerRight) {
+            attackHitbox.y = hitboxNextTick.y + hitbox.height/4;
+            attackHitbox.x = hitboxNextTick.x + hitbox.width;
+        } else {
+            attackHitbox.y = hitboxNextTick.y + hitbox.height/4;
+            attackHitbox.x = hitboxNextTick.x - hitbox.width;
+        }
     }
 
     public void xMovement() {
@@ -178,7 +191,7 @@ public class Player {
 
             //flip the sprite if its facing the wrong way
             if (!playerRight) {
-                this.updateSprites();
+                this.updateDirection();
                 playerRight = true;
             }
             velocity.x += movementSpeed * Gdx.graphics.getDeltaTime();
@@ -192,7 +205,7 @@ public class Player {
 
             //flip the sprite if its facing the wrong way
             if (playerRight) {
-                this.updateSprites();
+                this.updateDirection();
                 playerRight = false;
             }
 
@@ -241,11 +254,13 @@ public class Player {
     }
 
 
-    private void updateSprites() {
+    private void updateDirection() {
 
         idle.flip(true, false);
         jumping.flip(true, false);
         Arrays.stream(runningAnimation.getKeyFrames()).forEach(r -> r.flip(true, false));
-        Arrays.stream(attackAnimation.getKeyFrames()).forEach(r -> r.flip(true, false));
+        Arrays.stream(attackAnimation.getKeyFrames()).forEach(r -> {
+            r.flip(true, false);
+        });
     }
 }

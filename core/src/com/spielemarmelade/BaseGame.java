@@ -96,8 +96,12 @@ public class BaseGame extends ApplicationAdapter {
 
 		// render character
 		TextureRegion currentPlayerFrame = player.deriveSpriteFromCurrentState(time);
+		int playerOffset = 0;
+		if (!player.playerRight && (currentPlayerFrame.getRegionWidth() != currentPlayerFrame.getRegionHeight())) {
+			playerOffset = 80;
+		}
 		batch.draw(currentPlayerFrame,
-				player.hitbox.x-90,
+				player.hitbox.x-90-playerOffset,
 				player.hitbox.y-25,
 				player.spriteHeight*((float)currentPlayerFrame.getRegionWidth()/currentPlayerFrame.getRegionHeight()),
 				player.spriteHeight);
@@ -109,6 +113,8 @@ public class BaseGame extends ApplicationAdapter {
 		shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
 		shapeRenderer.setColor(Color.RED);
 		shapeRenderer.rect(player.hitbox.x, player.hitbox.y, player.hitbox.width, player.hitbox.height);
+		shapeRenderer.rect(player.attackHitbox.x, player.attackHitbox.y, player.attackHitbox.width, player.attackHitbox.height);
+
 		for(LevelBox box : level.boxes)
 			shapeRenderer.rect(box.hitbox.x, box.hitbox.y, box.hitbox.width, box.hitbox.height);
 		shapeRenderer.end();
