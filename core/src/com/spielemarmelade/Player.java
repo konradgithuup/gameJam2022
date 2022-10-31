@@ -22,7 +22,7 @@ public class Player {
     private final Animation<TextureRegion> attackAnimation;
     int health = 100;
 
-    private BlockingPlayerState blockingPlayerState = BlockingPlayerState.NONE;
+    BlockingPlayerState blockingPlayerState = BlockingPlayerState.NONE;
     static int JUMP_FACTOR = 100;
     Animation<TextureRegion> runningAnimation;
     Sprite idle;

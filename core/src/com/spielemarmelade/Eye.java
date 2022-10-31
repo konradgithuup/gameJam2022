@@ -1,7 +1,6 @@
 package com.spielemarmelade;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -9,49 +8,81 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
 import java.util.Arrays;
-
 public class Eye implements Enemy {
 
     int health = 1;
+    float dyingDuration = -1;
     int damage = 20;
-    Animation<TextureRegion> animation;
+    Animation<TextureRegion> flyingAnimation;
+    Animation<TextureRegion> slicedAnimation;
+
+    private final Player target;
     Rectangle hitbox = new Rectangle();
     int spriteWidth = 150;
     int spriteHeight = 150;
     int movementSpeed = 10;
+    boolean disabled = false;
+
     Vector2 velocity = new Vector2(0, 0);
+    Vector2 lookDirection = new Vector2(0, 0);
     Rectangle hitboxNextTick = new Rectangle();
-    TextureRegion[][] runningFrames;
-    TextureRegion[] runFrames;
-    float attackStartTime = -1;
+    TextureRegion[][] flyingFrames;
+    TextureRegion[] flyFrames;
 
     public Eye(Player target) {
+
+        this.target = target;
         hitbox.x = 500;
         hitbox.y = 500;
-        hitbox.width = spriteWidth * 0.4f;
-        hitbox.height = spriteHeight * 0.65f;
+        hitbox.width = spriteWidth * 0.75f;
+        hitbox.height = spriteHeight * 0.75f;
 
         hitboxNextTick.width = hitbox.width;
         hitboxNextTick.height = hitbox.height;
 
         Texture runningTexture = new Texture(Gdx.files.internal("eye/flying_spritesheet.png"));
-        runningFrames = TextureRegion.split(runningTexture, runningTexture.getWidth() / 3, runningTexture.getHeight());
-        runFrames = new TextureRegion[3];
+        flyingFrames = TextureRegion.split(runningTexture, runningTexture.getWidth() / 3, runningTexture.getHeight());
+        flyFrames = new TextureRegion[3];
 
         for (int x = 0; x < 3; x++)
-            runFrames[x] = runningFrames[0][x];
+            flyFrames[x] = flyingFrames[0][x];
 
-        this.animation = new Animation<>(0.07f, runFrames);
+        this.flyingAnimation = new Animation<>(0.07f, flyFrames);
+
+        Texture slicedTexture = new Texture(Gdx.files.internal("eye/sliced_spritesheet.png"));
+        TextureRegion[][] slicedFrames = TextureRegion.split(slicedTexture, slicedTexture.getWidth() / 5, slicedTexture.getHeight());
+        TextureRegion[] slcFrames = new TextureRegion[5];
+
+        for (int x = 0; x < 5; x++)
+            slcFrames[x] = slicedFrames[0][x];
+
+        this.slicedAnimation = new Animation<>(0.07f, slcFrames);
     }
 
 
     public TextureRegion deriveSpriteFromCurrentState(float time) {
 
-        return this.animation.getKeyFrame(time, true);
+        if (this.dyingDuration < 0 && this.health < 1) {
+            this.dyingDuration = time;
+        }
+
+        if (this.dyingDuration > 0 && this.slicedAnimation.isAnimationFinished(time - dyingDuration)) {
+            this.disabled = true;
+            return this.slicedAnimation.getKeyFrames()[4];
+        }
+
+        if (this.health < 1)
+            return this.slicedAnimation.getKeyFrame(time-dyingDuration, false);
+
+        return this.flyingAnimation.getKeyFrame(time, true);
     }
 
 
     public void update(Level level) {
+
+        if (health < 1 || this.disabled) return;
+
+        setVelocity();
 
         for (LevelBox box : level.boxes)
             collision(box);
@@ -64,7 +95,22 @@ public class Eye implements Enemy {
     }
 
 
+    private void setVelocity() {
+
+        Vector2 direction = new Vector2();
+        direction.x = (target.hitbox.x) - this.hitbox.x;
+        direction.y = (target.hitbox.y+this.target.hitbox.height/2) - this.hitbox.y;
+
+        this.lookDirection = direction;
+        velocity = direction.setLength(this.movementSpeed);
+    }
+
+
     private void collision(LevelBox box) {
+
+        if (hitboxNextTick.overlaps(target.attackHitbox) && target.blockingPlayerState == BlockingPlayerState.ATTACKING) {
+            this.health = 0;
+        }
 
         hitboxNextTick.x = hitbox.x + velocity.x;
         hitboxNextTick.y = hitbox.y;
