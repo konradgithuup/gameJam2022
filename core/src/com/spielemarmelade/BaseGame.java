@@ -17,8 +17,8 @@ public class BaseGame extends ApplicationAdapter {
 	SpriteBatch batch;
 	Player player;
 	OrthographicCamera camera;
-	float cameraDeltaX = 0;
-	float cameraDeltaY = 0;
+	static float cameraDeltaX = 0;
+	static float cameraDeltaY = 0;
 	ShapeRenderer shapeRenderer;
 
 	Eye eye;
@@ -60,6 +60,7 @@ public class BaseGame extends ApplicationAdapter {
 				new LevelBox(796, 85, 1902, 1460-85), // middle cloud
 				new LevelBox(240, 73, 3128, 1488-85), // right cloud
 				new LevelBox(57, 90, 3690, 1100-90), // right wall stone
+				new LevelBox(300, 3000, 3840, 0), // right wall
 		});
 		Level levelSky = new Level("level/sky.png", 0.8f);
 		Level levelHorizon = new Level("level/horizon.png", 0.25f);
@@ -85,6 +86,8 @@ public class BaseGame extends ApplicationAdapter {
 		player.updateInput(level);
 		updateEnemies();
 		updateCamera();
+		Interface.updateHp(player.health);
+		player.updateHp(time);
 		updateEnvironmentAssets();
 
 		batch.setProjectionMatrix(camera.combined);
@@ -115,6 +118,16 @@ public class BaseGame extends ApplicationAdapter {
 		// render level foreground
 		batch.draw(level.sprite,0,0,level.sprite.getWidth(), level.sprite.getHeight());
 		batch.end();
+
+		// render gui
+		shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+		shapeRenderer.setColor(Color.BLACK);
+		shapeRenderer.rect(Interface.hpBorder.x, Interface.hpBorder.y, Interface.hpBorder.width, Interface.hpBorder.height);
+		shapeRenderer.setColor(Color.GRAY);
+		shapeRenderer.rect(Interface.hpBackground.x, Interface.hpBackground.y, Interface.hpBackground.width, Interface.hpBackground.height);
+		shapeRenderer.setColor(Color.GREEN);
+		shapeRenderer.rect(Interface.hpBar.x, Interface.hpBar.y, Interface.hpBar.width, Interface.hpBar.height);
+		shapeRenderer.end();
 
 		shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
 		shapeRenderer.setColor(Color.RED);

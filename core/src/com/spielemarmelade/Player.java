@@ -228,6 +228,17 @@ public class Player {
         }
     }
 
+    float lastHpReduceTime = 0;
+    public void updateHp(float time){
+        if(time > lastHpReduceTime + 0.1f){
+            if(health > 0){
+
+                health--;
+                lastHpReduceTime = time;
+            }
+        }
+    }
+
     public void yMovement() {
         if (Gdx.input.isKeyPressed(Input.Keys.W)) {
             if (!isInAir) {
