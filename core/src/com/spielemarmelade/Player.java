@@ -25,6 +25,8 @@ public class Player {
     BlockingPlayerState blockingPlayerState = BlockingPlayerState.NONE;
     static int JUMP_FACTOR = 100;
     Animation<TextureRegion> runningAnimation;
+
+    Animation<TextureRegion> dieAnimation;
     Sprite idle;
     Sprite jumping;
     Rectangle hitbox = new Rectangle();
@@ -38,6 +40,9 @@ public class Player {
     Rectangle hitboxNextTick = new Rectangle();
     TextureRegion[][] runningFrames;
     TextureRegion[] runFrames;
+
+    TextureRegion[][] dieingFrames;
+    TextureRegion[] dieFrames;
     float attackStartTime = -1;
 
     public Player() {
@@ -66,6 +71,15 @@ public class Player {
 
         this.runningAnimation = new Animation<>(0.07f, runFrames);
 
+        Texture dieTexture = new Texture(Gdx.files.internal("player/spritesheet_die.png"));
+        dieingFrames = TextureRegion.split(dieTexture, dieTexture.getWidth()/10, dieTexture.getHeight());
+        dieFrames = new TextureRegion[10];
+
+        for(int x = 0; x < 10; x++)
+            dieFrames[x] = dieingFrames[0][x];
+
+        this.dieAnimation = new Animation<>(1f, dieFrames);
+
         Texture attackingSpriteSheet = new Texture((Gdx.files.internal("player/spritesheet_attacking.png")));
         TextureRegion[][] attackingFrames = TextureRegion.split(
                 attackingSpriteSheet,
@@ -82,11 +96,17 @@ public class Player {
             }
         }
         this.attackAnimation = new Animation<>(0.07f, frames);
+
+
         Arrays.stream(this.attackAnimation.getKeyFrames()).forEach(System.out::println);
     }
 
 
     public TextureRegion deriveSpriteFromCurrentState(float time) {
+
+        if (this.health == 0) {
+            return this.dieAnimation.getKeyFrame(time,false);
+        }
 
         if (this.attackStartTime < 0 && this.blockingPlayerState == BlockingPlayerState.ATTACKING) {
             this.attackStartTime = time;
@@ -114,7 +134,11 @@ public class Player {
 
         if (this.blockingPlayerState != BlockingPlayerState.NONE) return;
 
-        xMovement();
+        if (this.health != 0) {
+            xMovement();
+        } else {
+            velocity.x = 0;
+        }
 
         yMovement();
 
@@ -172,8 +196,14 @@ public class Player {
         }
     }
 
+    public void animateDeath(){
+
+    }
+
     public void xMovement() {
         //if both buttons are pressed and we are on the ground => STOP
+
+
         if (Gdx.input.isKeyPressed(Input.Keys.D) && Gdx.input.isKeyPressed(Input.Keys.A)) {
             if (!isInAir) {
                 velocity.x = 0;
@@ -240,7 +270,7 @@ public class Player {
     }
 
     public void yMovement() {
-        if (Gdx.input.isKeyPressed(Input.Keys.W)) {
+        if (Gdx.input.isKeyPressed(Input.Keys.W) && this.health != 0) {
             if (!isInAir) {
                 velocity.y += JUMP_FACTOR * movementSpeed * Gdx.graphics.getDeltaTime();
                 isInAir = true;
@@ -254,7 +284,7 @@ public class Player {
 
     public void setBlockingPlayerState() {
 
-        if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
+        if (Gdx.input.isKeyPressed(Input.Keys.SPACE) && health != 0) {
             blockingPlayerState = BlockingPlayerState.ATTACKING;
         }
     }

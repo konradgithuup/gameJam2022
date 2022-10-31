@@ -28,6 +28,7 @@ public class EnemyManager {
 
     void update(float time, float cameraDeltaX, float cameraDeltaY) {
 
+        if (target.health == 0) return;
         spawnY += cameraDeltaY;
         spawnX += cameraDeltaX;
 

@@ -82,7 +82,7 @@ public class Eye implements Enemy {
 
 
     public void update(Level level) {
-
+        if (target.health == 0) return;
         if (health < 1 || this.disabled) return;
 
         setVelocity();
