@@ -12,7 +12,8 @@ public class Eye implements Enemy {
 
     int health = 1;
     float dyingDuration = -1;
-    int damage = 20;
+    int damage = 15;
+    int score = 20;
     Animation<TextureRegion> flyingAnimation;
     Animation<TextureRegion> slicedAnimation;
 
@@ -64,10 +65,12 @@ public class Eye implements Enemy {
 
         if (this.dyingDuration < 0 && this.health < 1) {
             this.dyingDuration = time;
+            this.target.health = (this.target.health + this.score > 100)? 100 : this.target.health + this.score;
         }
 
         if (this.dyingDuration > 0 && this.slicedAnimation.isAnimationFinished(time - dyingDuration)) {
             this.disabled = true;
+            this.dyingDuration = 99;
             return this.slicedAnimation.getKeyFrames()[4];
         }
 
