@@ -145,14 +145,14 @@ public class BaseGame extends ApplicationAdapter {
 		shapeRenderer.rect(Interface.hpBar.x, Interface.hpBar.y, Interface.hpBar.width, Interface.hpBar.height);
 		shapeRenderer.end();
 
-		shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-		shapeRenderer.setColor(Color.RED);
-		shapeRenderer.rect(player.hitbox.x, player.hitbox.y, player.hitbox.width, player.hitbox.height);
-		shapeRenderer.rect(player.attackHitbox.x, player.attackHitbox.y, player.attackHitbox.width, player.attackHitbox.height);
-		shapeRenderer.rect(manager.rect.x, manager.rect.y, manager.rect.width, manager.rect.height);
+	//	shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+	//	shapeRenderer.setColor(Color.RED);
+	//	shapeRenderer.rect(player.hitbox.x, player.hitbox.y, player.hitbox.width, player.hitbox.height);
+	//	shapeRenderer.rect(player.attackHitbox.x, player.attackHitbox.y, player.attackHitbox.width, player.attackHitbox.height);
+	//	shapeRenderer.rect(manager.rect.x, manager.rect.y, manager.rect.width, manager.rect.height);
 
-		for(LevelBox box : level.boxes)
-			shapeRenderer.rect(box.hitbox.x, box.hitbox.y, box.hitbox.width, box.hitbox.height);
+	//	for(LevelBox box : level.boxes)
+	//		shapeRenderer.rect(box.hitbox.x, box.hitbox.y, box.hitbox.width, box.hitbox.height);
 		shapeRenderer.end();
 	}
 

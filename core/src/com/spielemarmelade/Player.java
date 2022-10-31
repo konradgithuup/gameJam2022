@@ -327,6 +327,7 @@ public class Player {
         idle.flip(true, false);
         jumping.flip(true, false);
         Arrays.stream(runningAnimation.getKeyFrames()).forEach(r -> r.flip(true, false));
+        Arrays.stream(dieAnimation.getKeyFrames()).forEach(r -> r.flip(true, false));
         Arrays.stream(blockingAnimation.getKeyFrames()).forEach(r -> r.flip(true, false));
         Arrays.stream(attackAnimation.getKeyFrames()).forEach(r -> {
             r.flip(true, false);
