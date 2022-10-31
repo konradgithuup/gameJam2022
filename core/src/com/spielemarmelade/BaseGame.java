@@ -17,8 +17,8 @@ public class BaseGame extends ApplicationAdapter {
 	SpriteBatch batch;
 	Player player;
 	OrthographicCamera camera;
-	float cameraDeltaX = 0;
-	float cameraDeltaY = 0;
+	static float cameraDeltaX = 0;
+	static float cameraDeltaY = 0;
 	ShapeRenderer shapeRenderer;
 
 	int sceneTransition = 0;
@@ -81,6 +81,8 @@ public class BaseGame extends ApplicationAdapter {
 
 		player.updateInput(level);
 		updateCamera();
+		Interface.updateHp(player.health);
+		player.updateHp(time);
 		updateEnvironmentAssets();
 
 		batch.setProjectionMatrix(camera.combined);
@@ -109,6 +111,16 @@ public class BaseGame extends ApplicationAdapter {
 		// render level foreground
 		batch.draw(level.sprite,0,0,level.sprite.getWidth(), level.sprite.getHeight());
 		batch.end();
+
+		// render gui
+		shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+		shapeRenderer.setColor(Color.BLACK);
+		shapeRenderer.rect(Interface.hpBorder.x, Interface.hpBorder.y, Interface.hpBorder.width, Interface.hpBorder.height);
+		shapeRenderer.setColor(Color.GRAY);
+		shapeRenderer.rect(Interface.hpBackground.x, Interface.hpBackground.y, Interface.hpBackground.width, Interface.hpBackground.height);
+		shapeRenderer.setColor(Color.GREEN);
+		shapeRenderer.rect(Interface.hpBar.x, Interface.hpBar.y, Interface.hpBar.width, Interface.hpBar.height);
+		shapeRenderer.end();
 
 		shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
 		shapeRenderer.setColor(Color.RED);
