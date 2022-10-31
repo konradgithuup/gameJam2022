@@ -115,6 +115,12 @@ public class Eye implements Enemy {
             this.health = 0;
         }
 
+        if (hitboxNextTick.overlaps((target.hitbox)) && target.blockingPlayerState == BlockingPlayerState.NONE) {
+            this.disabled = true;
+            this.target.setStaggered();
+            this.target.health = Math.max(this.target.health - damage, 0);
+        }
+
         hitboxNextTick.x = hitbox.x + velocity.x;
         hitboxNextTick.y = hitbox.y;
 

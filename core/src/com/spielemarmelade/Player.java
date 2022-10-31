@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import org.w3c.dom.Text;
 
 import java.util.Arrays;
 
@@ -27,6 +28,8 @@ public class Player {
     Animation<TextureRegion> runningAnimation;
     Sprite idle;
     Sprite jumping;
+
+    Animation<TextureRegion> blockingAnimation;
     Rectangle hitbox = new Rectangle();
     Rectangle attackHitbox = new Rectangle();
     Boolean playerRight = true;
@@ -39,6 +42,7 @@ public class Player {
     TextureRegion[][] runningFrames;
     TextureRegion[] runFrames;
     float attackStartTime = -1;
+    float blockingStartTime = -1;
 
     public Player() {
         hitbox.x = 500;
@@ -82,23 +86,45 @@ public class Player {
             }
         }
         this.attackAnimation = new Animation<>(0.07f, frames);
-        Arrays.stream(this.attackAnimation.getKeyFrames()).forEach(System.out::println);
+
+        Texture slicedTexture = new Texture(Gdx.files.internal("player/spritesheet_blocking.png"));
+        TextureRegion[][] slicedFrames = TextureRegion.split(slicedTexture, slicedTexture.getWidth() / 5, slicedTexture.getHeight());
+        TextureRegion[] slcFrames = new TextureRegion[5];
+
+        for (int x = 0; x < 5; x++)
+            slcFrames[x] = slicedFrames[0][x];
+
+        this.blockingAnimation = new Animation<>(0.07f, slcFrames);
     }
 
 
     public TextureRegion deriveSpriteFromCurrentState(float time) {
 
+        System.out.println(blockingPlayerState);
+
         if (this.attackStartTime < 0 && this.blockingPlayerState == BlockingPlayerState.ATTACKING) {
             this.attackStartTime = time;
         }
 
-        if (this.attackAnimation.isAnimationFinished(time - attackStartTime)) {
+        if (this.attackAnimation.isAnimationFinished(time - attackStartTime) && this.blockingPlayerState != BlockingPlayerState.STAGGERED) {
             this.attackStartTime = -1;
             this.blockingPlayerState = BlockingPlayerState.NONE;
         }
 
         if (this.blockingPlayerState == BlockingPlayerState.ATTACKING)
             return this.attackAnimation.getKeyFrame(time, true);
+
+        if (this.blockingStartTime < 0 && this.blockingPlayerState == BlockingPlayerState.STAGGERED) {
+            this.blockingStartTime = time;
+        }
+
+        if (this.blockingAnimation.isAnimationFinished(time - blockingStartTime)) {
+            this.blockingStartTime = -1;
+            this.blockingPlayerState = BlockingPlayerState.NONE;
+        }
+
+        if (this.blockingPlayerState == BlockingPlayerState.STAGGERED)
+            return this.blockingAnimation.getKeyFrame(time, true);
 
         if (isInAir) return this.jumping;
 
@@ -107,6 +133,9 @@ public class Player {
         return this.idle;
     }
 
+    public void setStaggered() {
+        this.blockingPlayerState = BlockingPlayerState.STAGGERED;
+    }
 
     public void updateInput(Level level) {
 
@@ -270,6 +299,7 @@ public class Player {
         idle.flip(true, false);
         jumping.flip(true, false);
         Arrays.stream(runningAnimation.getKeyFrames()).forEach(r -> r.flip(true, false));
+        Arrays.stream(blockingAnimation.getKeyFrames()).forEach(r -> r.flip(true, false));
         Arrays.stream(attackAnimation.getKeyFrames()).forEach(r -> {
             r.flip(true, false);
         });
