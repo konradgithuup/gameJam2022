@@ -8,11 +8,23 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import org.w3c.dom.Text;
 
+import java.io.Serializable;
 import java.util.Arrays;
+
+enum BlockingPlayerState {
+    NONE,
+    STAGGERED,
+    ATTACKING;
+}
 
 public class Player {
 
+    private final Animation<TextureRegion> attackAnimation;
+    int health = 100;
+
+    private BlockingPlayerState blockingPlayerState = BlockingPlayerState.NONE;
     static int JUMP_FACTOR = 100;
     Animation<TextureRegion> runningAnimation;
     Sprite idle;
@@ -21,14 +33,13 @@ public class Player {
     Boolean playerRight = true;
     int spriteWidth = 300;
     int spriteHeight = 300;
-    int spriteOffsetX = -40;
-    int spriteOffsetY = -15;
     Boolean isInAir = false;
     int movementSpeed = 18;
     Vector2 velocity = new Vector2(0, 0);
     Rectangle hitboxNextTick = new Rectangle();
     TextureRegion[][] runningFrames;
     TextureRegion[] runFrames;
+    float attackStartTime = -1;
 
     public Player() {
         hitbox.x = 500;
@@ -48,11 +59,41 @@ public class Player {
         for(int x = 0; x < 3; x++)
             runFrames[x] = runningFrames[0][x];
 
-        runningAnimation = new Animation<>(0.07f, runFrames);
+        this.runningAnimation = new Animation<>(0.07f, runFrames);
+
+        Texture attackingSpriteSheet = new Texture((Gdx.files.internal("player/spritesheet_attacking.png")));
+        TextureRegion[][] attackingFrames = TextureRegion.split(
+                attackingSpriteSheet,
+                attackingSpriteSheet.getWidth()/2,
+                attackingSpriteSheet.getHeight()/2);
+
+        TextureRegion[] frames = new TextureRegion[4];
+
+        int mapping = 0;
+        for (int i = 0; i < 2; i++) {
+            for (int j = 0; j < 2; j++) {
+                frames[mapping] = attackingFrames[i][j];
+                mapping++;
+            }
+        }
+        this.attackAnimation = new Animation<>(0.07f, frames);
+        Arrays.stream(this.attackAnimation.getKeyFrames()).forEach(System.out::println);
     }
 
 
     public TextureRegion deriveSpriteFromCurrentState(float time) {
+
+        if (this.attackStartTime < 0 && this.blockingPlayerState == BlockingPlayerState.ATTACKING) {
+            this.attackStartTime = time;
+        }
+
+        if (this.attackAnimation.isAnimationFinished(time - attackStartTime)) {
+            this.attackStartTime = -1;
+            this.blockingPlayerState = BlockingPlayerState.NONE;
+        }
+
+        if (this.blockingPlayerState == BlockingPlayerState.ATTACKING)
+            return this.attackAnimation.getKeyFrame(time, true);
 
         if (isInAir) return this.jumping;
 
@@ -63,6 +104,10 @@ public class Player {
 
 
     public void updateInput(Level level) {
+
+        setBlockingPlayerState();
+
+        if (this.blockingPlayerState != BlockingPlayerState.NONE) return;
 
         xMovement();
 
@@ -183,6 +228,14 @@ public class Player {
     }
 
 
+    public void setBlockingPlayerState() {
+
+        if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
+            blockingPlayerState = BlockingPlayerState.ATTACKING;
+        }
+    }
+
+
     public void dispose() {
         // pass (player character wont be disposed of until death of process, so no need for cleaning up)
     }
@@ -193,5 +246,6 @@ public class Player {
         idle.flip(true, false);
         jumping.flip(true, false);
         Arrays.stream(runningAnimation.getKeyFrames()).forEach(r -> r.flip(true, false));
+        Arrays.stream(attackAnimation.getKeyFrames()).forEach(r -> r.flip(true, false));
     }
 }

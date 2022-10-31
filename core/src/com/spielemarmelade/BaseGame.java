@@ -99,7 +99,7 @@ public class BaseGame extends ApplicationAdapter {
 		batch.draw(currentPlayerFrame,
 				player.hitbox.x-90,
 				player.hitbox.y-25,
-				player.spriteWidth,
+				player.spriteHeight*((float)currentPlayerFrame.getRegionWidth()/currentPlayerFrame.getRegionHeight()),
 				player.spriteHeight);
 
 		// render level foreground
